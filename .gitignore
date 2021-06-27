@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.pgdata/
+.docker/
+.env
+.vscode
+staticfiles/
+mediafiles/
+.venv
+venv
