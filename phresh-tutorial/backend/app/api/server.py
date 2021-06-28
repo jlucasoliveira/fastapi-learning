@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from ..core import config, tasks
 from .routes import router as api_router
 
 
 def get_application() -> FastAPI:
-    app = FastAPI(title="API-tutorial", version="0.0.1")
+    app = FastAPI(title=config.PROJECT_NAME, version=config.VERSION)
 
     app.add_middleware(
         CORSMiddleware,
@@ -15,7 +16,10 @@ def get_application() -> FastAPI:
         allow_credentials=True,
     )
 
-    app.include_router(api_router, prefix="/api")
+    app.add_event_handler("startup", tasks.create_start_app_handler(app))
+    app.add_event_handler("shutdown", tasks.create_stop_app_handler(app))
+
+    app.include_router(api_router, prefix=config.API_PREFIX)
 
     return app
 
