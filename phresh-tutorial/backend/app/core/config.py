@@ -7,7 +7,7 @@ config = Config()
 
 PROJECT_NAME: str = "phresh-tutorial"
 VERSION: str = "0.0.1"
-API_PREFIX: str = "api/"
+API_PREFIX: str = "/api"
 
 SECRET_KEY: Secret = config("SECRET_KEY", cast=Secret)
 
