@@ -7,7 +7,7 @@ from sqlalchemy import (
     pool,
     engine_from_config,
 )
-from app.core.config import DATABAS_URL
+from app.core.config import DATABASE_URL
 
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
 
@@ -23,7 +23,7 @@ def run_migrations_online() -> None:
     """
 
     connectable = config.attributes.get("connection", None)
-    config.set_main_option("sqlalchemy.url", str(DATABAS_URL))
+    config.set_main_option("sqlalchemy.url", str(DATABASE_URL))
 
     if not connectable:
         connectable = engine_from_config(
@@ -47,7 +47,7 @@ def run_migrations_offline() -> None:
     Run migrations in 'offline' mode.
     """
 
-    alembic.context.configure(url=str(DATABAS_URL))
+    alembic.context.configure(url=str(DATABASE_URL))
 
     with alembic.context.begin_transaction():
         alembic.context.run_migrations()

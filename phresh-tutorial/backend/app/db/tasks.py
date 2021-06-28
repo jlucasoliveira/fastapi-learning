@@ -1,12 +1,12 @@
 from databases import Database
 from fastapi import FastAPI
 
-from ..core.config import DATABAS_URL
+from ..core.config import DATABASE_URL
 from ..utils import handle_exception
 
 
 async def connect_to_db(app: FastAPI) -> None:
-    database = Database(DATABAS_URL, min_size=2, max_size=10)
+    database = Database(DATABASE_URL, min_size=2, max_size=10)
 
     try:
         await database.connect()
