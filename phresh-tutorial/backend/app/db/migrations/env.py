@@ -3,11 +3,13 @@ import pathlib
 import logging
 from logging.config import fileConfig
 import alembic
+from psycopg2 import DatabaseError
 from sqlalchemy import (
     pool,
+    create_engine,
     engine_from_config,
 )
-from app.core.config import DATABASE_URL
+from app.core.config import DATABASE_URL, TESTING
 
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
 
@@ -22,8 +24,17 @@ def run_migrations_online() -> None:
     Run migrations in 'online' mode.
     """
 
+    DB_NAME = DATABASE_URL.database
+    _DATABASE_URL = f"{DATABASE_URL}_test" if TESTING else str(DATABASE_URL)
+
+    if TESTING:
+        default_engine = create_engine(str(DATABASE_URL), isolation_level="AUTOCOMMIT")
+        with default_engine.connect() as default_conn:
+            default_conn.execute(f"DROP DATABASE IF EXISTS {DB_NAME}_test")
+            default_conn.execute(f"CREATE DATABASE {DB_NAME}_test")
+
     connectable = config.attributes.get("connection", None)
-    config.set_main_option("sqlalchemy.url", str(DATABASE_URL))
+    config.set_main_option("sqlalchemy.url", str(_DATABASE_URL))
 
     if not connectable:
         connectable = engine_from_config(
@@ -46,6 +57,9 @@ def run_migrations_offline() -> None:
     """
     Run migrations in 'offline' mode.
     """
+
+    if TESTING:
+        raise DatabaseError("Running testing migrations offline currently not permitted.")
 
     alembic.context.configure(url=str(DATABASE_URL))
 

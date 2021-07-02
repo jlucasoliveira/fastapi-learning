@@ -1,6 +1,6 @@
 """create_cleanings_table
 Revision ID: 34b3a977eb60
-Revises: jlucasoliveira
+Revises: 
 Create Date: 2021-06-28 15:07:01.155885
 
 """

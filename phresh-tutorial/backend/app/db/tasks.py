@@ -1,12 +1,12 @@
+from app.core.config import DATABASE_URL, TESTING
+from app.utils import handle_exception
 from databases import Database
 from fastapi import FastAPI
 
-from ..core.config import DATABASE_URL
-from ..utils import handle_exception
-
 
 async def connect_to_db(app: FastAPI) -> None:
-    database = Database(DATABASE_URL, min_size=2, max_size=10)
+    _DATABASE_URL = f"{DATABASE_URL}_test" if TESTING else DATABASE_URL
+    database = Database(_DATABASE_URL, min_size=2, max_size=10)
 
     try:
         await database.connect()

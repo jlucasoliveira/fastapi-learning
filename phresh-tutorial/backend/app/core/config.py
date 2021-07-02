@@ -12,3 +12,5 @@ API_PREFIX: str = "/api"
 SECRET_KEY: Secret = config("SECRET_KEY", cast=Secret)
 
 DATABASE_URL = config("DATABASE_URL", cast=DatabaseURL)
+
+TESTING: str = config("TESTING", cast=bool, default=False)
