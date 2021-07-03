@@ -4,6 +4,8 @@ import warnings
 import alembic
 import pytest
 from alembic.config import Config
+from app.db.repositories.cleanings import CleaningRepository
+from app.models.cleaning import CleaningCreate, CleaningInDB, CleaningType
 from asgi_lifespan import LifespanManager
 from databases import Database
 from fastapi import FastAPI
@@ -42,3 +44,16 @@ async def client(app: FastAPI) -> AsyncClient:
             headers={"Content-Type": "application/json"},
         ) as client:
             yield client
+
+
+@pytest.fixture
+async def test_cleaning(db: Database) -> CleaningInDB:
+    cleaning_repo = CleaningRepository(db)
+    new_cleaning = CleaningCreate(
+        name="mocked cleaning name",
+        description="mocked cleaning description",
+        price=99.9,
+        cleaning_type=CleaningType.spot_clean,
+    )
+
+    return await cleaning_repo.create_cleaning(obj=new_cleaning)
