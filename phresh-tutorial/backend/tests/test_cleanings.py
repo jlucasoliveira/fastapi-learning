@@ -77,3 +77,13 @@ class TestGetCleaning:
     ) -> None:
         res = await client.get(app.url_path_for("cleanings:retrieve-cleaning-by-id", id=id))
         assert res.status_code == status_code
+
+    async def test_get_all_cleanings_returns_valid_response(
+        self, app: FastAPI, client: AsyncClient, test_cleaning: CleaningInDB
+    ) -> None:
+        res = await client.get(app.url_path_for("cleanings:list-cleanings"))
+        assert res.status_code == status.HTTP_200_OK
+        assert isinstance(res.json(), list)
+        assert len(res.json()) > 0
+        cleanings = [CleaningInDB(**item) for item in res.json()]
+        assert test_cleaning in cleanings

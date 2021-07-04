@@ -1,4 +1,4 @@
-from typing import Union
+from typing import List, Union
 
 from app.models.cleaning import CleaningCreate, CleaningInDB
 
@@ -8,6 +8,12 @@ CREATE_CLEANING_QUERY = """
     INSERT INTO cleanings (name, description, price, cleaning_type)
     VALUES (:name, :description, :price, :cleaning_type)
     RETURNING id, name, description, price, cleaning_type;
+"""
+
+
+LIST_ALL_CLEANINGS_QUERY = """
+    SELECT id, name, description, price, cleaning_type
+    FROM cleanings
 """
 
 
@@ -27,6 +33,12 @@ class CleaningRepository(BaseRepository):
         )
 
         return CleaningInDB(**cleaning)
+
+    async def list_cleanings(self) -> List[CleaningInDB]:
+        cleanings = await self.db.fetch_all(
+            query=LIST_ALL_CLEANINGS_QUERY,
+        )
+        return [CleaningInDB(**cleaning) for cleaning in cleanings]
 
     async def retrieve_cleaning_by_id(self, *, id: int) -> Union[CleaningInDB, None]:
         cleaning = await self.db.fetch_one(
