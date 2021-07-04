@@ -28,7 +28,7 @@ class CleaningRepository(BaseRepository):
 
         return CleaningInDB(**cleaning)
 
-    async def retrieve_cleaning(self, *, id: int) -> Union[CleaningInDB, None]:
+    async def retrieve_cleaning_by_id(self, *, id: int) -> Union[CleaningInDB, None]:
         cleaning = await self.db.fetch_one(
             query=RETRIEVE_CLEANING_BY_ID_QUERY,
             values={"id": id},

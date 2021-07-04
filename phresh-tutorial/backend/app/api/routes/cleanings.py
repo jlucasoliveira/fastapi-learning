@@ -3,6 +3,7 @@ from typing import List
 from app.api.dependencies.database import get_repository
 from app.db.repositories.cleanings import CleaningRepository
 from app.models.cleaning import CleaningCreate, CleaningPublic
+
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 
 router = APIRouter()
@@ -20,13 +21,13 @@ async def get_all_cleanings() -> List[dict]:
 @router.get(
     "/{id}/",
     response_model=CleaningPublic,
-    name="cleanings:retrieve-cleaning",
+    name="cleanings:retrieve-cleaning-by-id",
 )
-async def retrieve_cleaning(
+async def retrieve_cleaning_by_id(
     id: int,
     cleanings_repo: CleaningRepository = Depends(get_repository(CleaningRepository)),
 ) -> CleaningPublic:
-    cleaning = await cleanings_repo.retrieve_cleaning(id=id)
+    cleaning = await cleanings_repo.retrieve_cleaning_by_id(id=id)
     if not cleaning:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No cleaning found with that id.")
     return cleaning

@@ -2,8 +2,9 @@ from typing import Optional
 
 import pytest
 from app.models.cleaning import CleaningCreate, CleaningInDB, CleaningType
-from fastapi import FastAPI, status
 from httpx import AsyncClient
+
+from fastapi import FastAPI, status
 
 pytestmark = pytest.mark.asyncio
 
@@ -57,7 +58,7 @@ class TestCreateCleaning:
 
 class TestGetCleaning:
     async def test_get_cleaning_by_id(self, app: FastAPI, client: AsyncClient, test_cleaning: CleaningInDB) -> None:
-        res = await client.get(app.url_path_for("cleanings:retrieve-cleaning", id=test_cleaning.id))
+        res = await client.get(app.url_path_for("cleanings:retrieve-cleaning-by-id", id=test_cleaning.id))
         assert res.status_code == status.HTTP_200_OK
 
         cleaning = CleaningInDB(**res.json())
@@ -74,5 +75,5 @@ class TestGetCleaning:
     async def test_get_cleaning_raises_error(
         self, app: FastAPI, client: AsyncClient, id: Optional[int], status_code: int
     ) -> None:
-        res = await client.get(app.url_path_for("cleanings:retrieve-cleaning", id=id))
+        res = await client.get(app.url_path_for("cleanings:retrieve-cleaning-by-id", id=id))
         assert res.status_code == status_code
