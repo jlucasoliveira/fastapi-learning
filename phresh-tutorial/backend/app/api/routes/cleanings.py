@@ -2,9 +2,9 @@ from typing import List
 
 from app.api.dependencies.database import get_repository
 from app.db.repositories.cleanings import CleaningRepository
-from app.models.cleaning import CleaningCreate, CleaningPublic
+from app.models.cleaning import CleaningCreate, CleaningPublic, CleaningUpdate
 
-from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Path, status
 
 router = APIRouter()
 
@@ -44,3 +44,24 @@ async def create_new_cleaning(
 ) -> CleaningPublic:
     created_cleaning = await cleanings_repo.create_cleaning(obj=new_cleaning)
     return created_cleaning
+
+
+@router.put(
+    "/{id}/",
+    response_model=CleaningPublic,
+    name="cleanings:update-cleaning",
+)
+async def update_cleaning(
+    id: int = Path(Ellipsis, ge=1, title="The ID of the cleaning to update."),
+    cleaning: CleaningUpdate = Body(Ellipsis),
+    cleanings_repo: CleaningRepository = Depends(get_repository(CleaningRepository)),
+) -> CleaningPublic:
+    updated_cleaning = await cleanings_repo.update_cleaning(id=id, obj=cleaning)
+
+    if not updated_cleaning:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No cleaning found with that id.",
+        )
+
+    return updated_cleaning
