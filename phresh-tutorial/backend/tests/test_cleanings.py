@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional, Union
 
 import pytest
 from app.models.cleaning import CleaningCreate, CleaningInDB, CleaningType
@@ -87,3 +87,60 @@ class TestGetCleaning:
         assert len(res.json()) > 0
         cleanings = [CleaningInDB(**item) for item in res.json()]
         assert test_cleaning in cleanings
+
+
+class TestUpdateCleaning:
+    @pytest.mark.parametrize(
+        "attrs_to_change, values",
+        (
+            (["name"], ["new mock name to cleaning"]),
+            (["description"], ["new mock description"]),
+            (["price"], [92.3]),
+            (["cleaning_type"], [CleaningType.full_clean]),
+            (["name", "description"], ["extra new mock cleaning name", "oh yah! new description too"]),
+            (["price", "cleaning_type"], [19.72, CleaningType.dust_up]),
+        ),
+    )
+    async def test_update_cleaning_with_valid_input(
+        self,
+        app: FastAPI,
+        client: AsyncClient,
+        test_cleaning: CleaningInDB,
+        attrs_to_change: List[str],
+        values: List[Union[str, float]],
+    ) -> None:
+        to_update_cleaning = {attrs_to_change[i]: values[i] for i in range(len(attrs_to_change))}
+        res = await client.put(
+            app.url_path_for("cleanings:update-cleaning", id=test_cleaning.id),
+            json=to_update_cleaning,
+        )
+        assert res.status_code == status.HTTP_200_OK
+        cleaning = CleaningInDB(**res.json())
+        assert cleaning.id == test_cleaning.id
+
+        # Testa se os atributos foram alteredos e se foram alterados do campo certo
+        for i in range(len(attrs_to_change)):
+            assert getattr(cleaning, attrs_to_change[1]) != getattr(test_cleaning, attrs_to_change[1])
+            assert getattr(cleaning, attrs_to_change[1]) == values[i]
+
+        # Testa se apenas os atributos enviados foram mudados
+        for attr, value in cleaning.dict().items():
+            if attr not in attrs_to_change:
+                assert getattr(test_cleaning, attr) == value
+
+    @pytest.mark.parametrize(
+        "id, payload, status_code",
+        (
+            (-1, {"name": "test"}, 422),
+            (0, {"name": "test2"}, 422),
+            (500, {"name": "test3"}, 404),
+            (1, None, 422),
+            (1, {"cleaning_type": "invalid cleaning type"}, 422),
+            (1, {"cleaning_type": None}, 400),
+        ),
+    )
+    async def test_update_cleaning_raises_errors_with_invalid_input(
+        self, app: FastAPI, client: AsyncClient, id: int, payload: Optional[dict], status_code: int
+    ) -> None:
+        res = await client.put(app.url_path_for("cleanings:update-cleaning", id=id), json=payload)
+        assert res.status_code == status.HTTP_200_OK
