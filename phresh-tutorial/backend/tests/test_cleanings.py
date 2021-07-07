@@ -120,8 +120,8 @@ class TestUpdateCleaning:
 
         # Testa se os atributos foram alteredos e se foram alterados do campo certo
         for i in range(len(attrs_to_change)):
-            assert getattr(cleaning, attrs_to_change[1]) != getattr(test_cleaning, attrs_to_change[1])
-            assert getattr(cleaning, attrs_to_change[1]) == values[i]
+            assert getattr(cleaning, attrs_to_change[i]) != getattr(test_cleaning, attrs_to_change[i])
+            assert getattr(cleaning, attrs_to_change[i]) == values[i]
 
         # Testa se apenas os atributos enviados foram mudados
         for attr, value in cleaning.dict().items():
@@ -143,4 +143,4 @@ class TestUpdateCleaning:
         self, app: FastAPI, client: AsyncClient, id: int, payload: Optional[dict], status_code: int
     ) -> None:
         res = await client.put(app.url_path_for("cleanings:update-cleaning", id=id), json=payload)
-        assert res.status_code == status.HTTP_200_OK
+        assert res.status_code == status_code

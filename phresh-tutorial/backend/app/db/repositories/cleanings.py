@@ -30,7 +30,7 @@ UPDATE_CLEANING_BY_ID_QUERY = """
     UPDATE cleanings
     SET name = :name,
         description = :description,
-        price = :price
+        price = :price,
         cleaning_type = :cleaning_type
     WHERE id = :id
     RETURNING id, name, description, price, cleaning_type;
