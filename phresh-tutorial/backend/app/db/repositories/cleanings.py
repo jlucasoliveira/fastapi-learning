@@ -37,6 +37,13 @@ UPDATE_CLEANING_BY_ID_QUERY = """
 """
 
 
+DELETE_CLEANING_QUERY = """
+    DELETE FROM cleanings
+    WHERE id = :id
+    RETURNING id
+"""
+
+
 class CleaningRepository(BaseRepository):
     async def create_cleaning(self, *, obj: CleaningCreate) -> CleaningInDB:
         query_values = obj.dict()
@@ -84,3 +91,13 @@ class CleaningRepository(BaseRepository):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid update params.",
             )
+
+    async def delete_cleaning(self, *, id: int) -> bool:
+        cleaning_to_delete = await self.retrieve_cleaning_by_id(id=id)
+
+        if not cleaning_to_delete:
+            return False
+
+        await self.db.fetch_one(query=DELETE_CLEANING_QUERY, values={"id": cleaning_to_delete.id})
+
+        return True
