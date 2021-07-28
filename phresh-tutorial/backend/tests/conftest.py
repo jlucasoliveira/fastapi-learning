@@ -5,11 +5,14 @@ import alembic
 import pytest
 from alembic.config import Config
 from app.db.repositories.cleanings import CleaningRepository
+from app.db.repositories.users import UsersRepository
 from app.models.cleaning import CleaningCreate, CleaningInDB, CleaningType
+from app.models.user import UserCreate, UserInDB
 from asgi_lifespan import LifespanManager
 from databases import Database
-from fastapi import FastAPI
 from httpx import AsyncClient
+
+from fastapi import FastAPI
 
 
 @pytest.fixture(scope="session")
@@ -57,3 +60,20 @@ async def test_cleaning(db: Database) -> CleaningInDB:
     )
 
     return await cleaning_repo.create_cleaning(obj=new_cleaning)
+
+
+@pytest.fixture
+async def test_user(db: Database) -> UserInDB:
+    new_user = UserCreate(
+        email="lebron@james.io",
+        username="lebronjames",
+        password="heatcavslakers",
+    )
+
+    user_repo = UsersRepository(db)
+
+    existing_user = await user_repo.get_user_by_email(email=new_user.email)
+    if existing_user:
+        return existing_user
+
+    return await user_repo.register_new_user(new_user=new_user)
